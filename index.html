@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>给宝子的小窝</title>
+    <title>小宝之窝</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -57,6 +57,20 @@
                         </div>
                         <h3>专属我们的小故事集</h3>
                         <p>点击章节，解锁属于我们的小故事～</p>
+                    </div>
+                    <div class="feature-card" onclick="openPhotoAlbum()">
+                        <div class="card-icon">
+                            <i class="fas fa-images"></i>
+                        </div>
+                        <h3>我们的甜蜜相册</h3>
+                        <p>记录我们每一个美好瞬间～</p>
+                    </div>
+                    <div class="feature-card" onclick="openLoveCourt()">
+                        <div class="card-icon">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <h3>爱情小法庭</h3>
+                        <p>吵架时候的温馨互动小工具～</p>
                     </div>
                 </div>
             </div>
@@ -253,6 +267,79 @@
             <div class="modal-actions">
                 <button class="cancel-btn" onclick="closeAnnotationModal()">取消</button>
                 <button class="confirm-btn" onclick="saveAnnotation()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 相册模态框 -->
+    <div class="photo-album-modal" id="photoAlbumModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>我们的甜蜜相册 📸</h3>
+                <button class="close-btn" onclick="closePhotoAlbum()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="album-container">
+                <div class="album-tabs">
+                    <button class="album-tab-btn active" onclick="switchAlbumTab('memories')">美好回忆</button>
+                    <button class="album-tab-btn" onclick="switchAlbumTab('daily')">日常点滴</button>
+                    <button class="album-tab-btn" onclick="switchAlbumTab('special')">特殊时刻</button>
+                </div>
+                <div class="album-grid" id="albumGrid">
+                    <!-- 相册内容将动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 小法庭模态框 -->
+    <div class="love-court-modal" id="loveCourtModal">
+        <div class="modal-content medium">
+            <div class="court-header">
+                <h3>爱情小法庭 ⚖️</h3>
+                <button class="close-btn" onclick="closeLoveCourt()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="court-content">
+                <div class="judge-area">
+                    <div class="judge-avatar">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h4>爱情法官</h4>
+                    <p class="judge-speech">今天是谁的错呢？让爱情法官来评判吧！</p>
+                </div>
+                
+                <div class="court-case">
+                    <h5>案件描述</h5>
+                    <textarea id="caseDescription" placeholder="简单描述一下发生了什么..." rows="3"></textarea>
+                </div>
+                
+                <div class="court-actions">
+                    <div class="plaintiff-defendant">
+                        <button class="court-btn blame-btn" onclick="submitBlame()">
+                            <i class="fas fa-user"></i>
+                            是TA的错！
+                        </button>
+                        <button class="court-btn self-blame-btn" onclick="submitSelfBlame()">
+                            <i class="fas fa-user-friends"></i>
+                            我的错...
+                        </button>
+                    </div>
+                    <div class="peace-btn-container">
+                        <button class="peace-btn" onclick="proposePeace()">
+                            <i class="fas fa-dove"></i>
+                            和解大法
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="verdict-area" id="verdictArea" style="display: none;">
+                    <h5>判决结果</h5>
+                    <div class="verdict-text" id="verdictText"></div>
+                    <div class="penalty-suggestion" id="penaltySuggestion"></div>
+                </div>
             </div>
         </div>
     </div>
