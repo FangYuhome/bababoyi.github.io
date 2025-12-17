@@ -639,14 +639,31 @@ function adjustFontSize(delta) {
     fontSize = Math.max(12, Math.min(20, fontSize));
     
     const storyText = document.getElementById('storyText');
+    if (!storyText) return;
+    
     storyText.classList.remove('small-font', 'large-font');
     
     if (fontSize < 16) {
         storyText.classList.add('small-font');
+        storyText.style.fontSize = fontSize + 'px';
     } else if (fontSize > 16) {
         storyText.classList.add('large-font');
+        storyText.style.fontSize = fontSize + 'px';
+    } else {
+        storyText.style.fontSize = '16px';
     }
+    
+    // 保存字体大小到localStorage
+    localStorage.setItem('storyFontSize', fontSize);
 }
+
+// 页面加载时恢复字体大小
+document.addEventListener('DOMContentLoaded', function() {
+    const savedFontSize = localStorage.getItem('storyFontSize');
+    if (savedFontSize) {
+        fontSize = parseInt(savedFontSize);
+    }
+});
 
 // 背景透明度控制
 function toggleBackground() {
@@ -843,6 +860,9 @@ function saveAnnotation() {
             timestamp: new Date().toISOString()
         };
         
+        // 保存到localStorage
+        localStorage.setItem('storyAnnotations', JSON.stringify(annotations));
+        
         // 重新加载故事内容以显示批注
         loadStoryContent(currentChapter);
         
@@ -854,9 +874,33 @@ function saveAnnotation() {
 
 function removeAnnotation(paragraphId) {
     delete annotations[paragraphId];
+    
+    // 保存到localStorage
+    localStorage.setItem('storyAnnotations', JSON.stringify(annotations));
+    
     loadStoryContent(currentChapter);
     showNotification('批注已删除');
 }
+
+// 页面加载时恢复批注
+document.addEventListener('DOMContentLoaded', function() {
+    // 恢复字体大小
+    const savedFontSize = localStorage.getItem('storyFontSize');
+    if (savedFontSize) {
+        fontSize = parseInt(savedFontSize);
+    }
+    
+    // 恢复批注
+    const savedAnnotations = localStorage.getItem('storyAnnotations');
+    if (savedAnnotations) {
+        try {
+            annotations = JSON.parse(savedAnnotations);
+        } catch (e) {
+            console.log('恢复批注失败:', e);
+            annotations = {};
+        }
+    }
+});
 
 // 通知功能
 function showNotification(message) {
@@ -967,23 +1011,58 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// 添加触摸滑动支持
+// 添加触摸滑动支持 - 仅导航，禁用缩放
 let touchStartX = 0;
 let touchEndX = 0;
+let initialTouchDistance = 0;
+let lastTouchEnd = 0;
+
+// 禁用双击缩放
+document.addEventListener('touchend', function(e) {
+    const now = (new Date()).getTime();
+    if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+    }
+    lastTouchEnd = now;
+}, false);
+
+// 禁用手势缩放
+document.addEventListener('gesturestart', function(e) {
+    e.preventDefault();
+});
+
+// 禁用缩放相关事件
+document.addEventListener('touchmove', function(e) {
+    if (e.touches.length > 1) {
+        e.preventDefault(); // 禁止多点触控缩放
+    }
+}, { passive: false });
 
 document.addEventListener('touchstart', function(e) {
     touchStartX = e.changedTouches[0].screenX;
+    
+    // 记录初始双指距离（用于检测缩放意图）
+    if (e.touches.length === 2) {
+        initialTouchDistance = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
+    }
 });
 
 document.addEventListener('touchend', function(e) {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
+    if (e.touches.length === 0) {
+        touchEndX = e.changedTouches[e.changedTouches.length - 1].screenX;
+        handleSwipe();
+        initialTouchDistance = 0;
+    }
 });
 
 function handleSwipe() {
-    const swipeThreshold = 80; // 降低阈值，更适合移动端
+    const swipeThreshold = 80;
     const diff = touchStartX - touchEndX;
     
+    // 只处理单指滑动，忽略可能的双指操作
     if (Math.abs(diff) > swipeThreshold) {
         if (diff > 0 && currentSection !== 'about') {
             // 向左滑动，下一个section
@@ -1280,19 +1359,29 @@ function handleClick(element, characterType, e) {
 
 // 拳头效果
 function showFistEffect(x, y) {
+    // 确保坐标是有效的
+    if (typeof x !== 'number' || typeof y !== 'number') {
+        return;
+    }
+    
     const fist = document.createElement('div');
     fist.className = 'fist-effect';
     fist.textContent = '👊';
     fist.style.left = x + 'px';
     fist.style.top = y + 'px';
+    fist.style.zIndex = '3000'; // 确保在最上层
     
     document.body.appendChild(fist);
     
     setTimeout(() => {
-        if (fist.parentNode) {
-            fist.parentNode.removeChild(fist);
+        try {
+            if (fist && fist.parentNode) {
+                fist.parentNode.removeChild(fist);
+            }
+        } catch (e) {
+            console.log('拳头效果移除失败:', e);
         }
-    }, 500);
+    }, 800); // 延长显示时间
 }
 
 // 眼泪效果
@@ -1426,4 +1515,179 @@ function optimizeForMobile() {
             }, 200);
         }
     });
+}
+
+// 相册功能
+function openPhotoAlbum() {
+    const modal = document.getElementById('photoAlbumModal');
+    modal.classList.add('show');
+    loadAlbumContent('memories');
+}
+
+function closePhotoAlbum() {
+    const modal = document.getElementById('photoAlbumModal');
+    modal.classList.remove('show');
+}
+
+function switchAlbumTab(category) {
+    // 更新标签状态
+    document.querySelectorAll('.album-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    loadAlbumContent(category);
+}
+
+function loadAlbumContent(category) {
+    const albumGrid = document.getElementById('albumGrid');
+    const photos = getAlbumPhotos(category);
+    
+    let html = '';
+    photos.forEach(photo => {
+        html += `
+            <div class="photo-item" onclick="viewPhoto('${photo.url}')">
+                <div class="photo-placeholder">
+                    <i class="fas ${photo.icon}"></i>
+                </div>
+                <div class="photo-info">
+                    <h4>${photo.title}</h4>
+                    <p>${photo.description}</p>
+                    <span class="photo-date">${photo.date}</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    albumGrid.innerHTML = html;
+}
+
+function getAlbumPhotos(category) {
+    const photoData = {
+        memories: [
+            { icon: 'fa-heart', title: '第一次见面', description: '还记得那个阳光明媚的下午吗？', date: '2024.01.15', url: '' },
+            { icon: 'fa-coffee', title: '第一次约会', description: '咖啡店的香氛和你的笑容', date: '2024.02.14', url: '' },
+            { icon: 'fa-star', title: '确定了关系', description: '从此开始我们的甜蜜故事', date: '2024.03.20', url: '' },
+            { icon: 'fa-gift', title: '生日惊喜', description: '你最喜欢的礼物和蛋糕', date: '2024.05.25', url: '' }
+        ],
+        daily: [
+            { icon: 'fa-sun', title: '早晨的阳光', description: '每天醒来看到你的幸福', date: '昨天', url: '' },
+            { icon: 'fa-home', title: '温馨的晚餐', description: '一起做饭的温馨时光', date: '今天', url: '' },
+            { icon: 'fa-walking', title: '傍晚散步', description: '牵手走在回家的路上', date: '今天', url: '' },
+            { icon: 'fa-moon', title: '晚安时光', description: '睡前说的每一句晚安', date: '今天', url: '' }
+        ],
+        special: [
+            { icon: 'fa-award', title: '纪念日', description: '每一个值得纪念的日子', date: '2024.06.01', url: '' },
+            { icon: 'fa-plane', title: '第一次旅行', description: '说走就走的美好回忆', date: '2024.07.15', url: '' },
+            { icon: 'fa-ring', title: '重要承诺', description: '许下永恒的诺言', date: '2024.08.20', url: '' },
+            { icon: 'fa-infinity', title: '永恒瞬间', description: '永远定格的美好', date: '2024.09.10', url: '' }
+        ]
+    };
+    
+    return photoData[category] || [];
+}
+
+function viewPhoto(url) {
+    showNotification('点击了照片功能，可以在这里添加图片查看器 📸');
+}
+
+// 小法庭功能
+function openLoveCourt() {
+    const modal = document.getElementById('loveCourtModal');
+    modal.classList.add('show');
+    resetCourt();
+}
+
+function closeLoveCourt() {
+    const modal = document.getElementById('loveCourtModal');
+    modal.classList.remove('show');
+}
+
+function resetCourt() {
+    document.getElementById('caseDescription').value = '';
+    document.getElementById('verdictArea').style.display = 'none';
+}
+
+function submitBlame() {
+    const description = document.getElementById('caseDescription').value.trim();
+    if (!description) {
+        showNotification('请先描述一下发生了什么 📝');
+        return;
+    }
+    
+    const verdicts = [
+        {
+            text: '判决：经过公正审判，对方确实需要反思一下自己的行为！',
+            penalty: '惩罚方案：今晚给对方按摩10分钟，并说出3个对方的优点！'
+        },
+        {
+            text: '判决：爱情法官认定，你的感受很重要！',
+            penalty: '惩罚方案：对方需要给你买喜欢的小零食，并主动拥抱1分钟！'
+        },
+        {
+            text: '判决：在爱情的世界里，沟通和理解最重要！',
+            penalty: '惩罚方案：一起看一部喜欢的电影，不许玩手机！'
+        }
+    ];
+    
+    const verdict = verdicts[Math.floor(Math.random() * verdicts.length)];
+    showVerdict(verdict);
+}
+
+function submitSelfBlame() {
+    const description = document.getElementById('caseDescription').value.trim();
+    if (!description) {
+        showNotification('请先描述一下发生了什么 📝');
+        return;
+    }
+    
+    const verdicts = [
+        {
+            text: '判决：勇于承认错误是爱情中最高贵的品质！',
+            penalty: '补偿方案：为对方做一件贴心的小事，并说声"我爱你"！'
+        },
+        {
+            text: '判决：自我反省让爱情更加珍贵！',
+            penalty: '补偿方案：主动牵手散步，聊聊开心的话题！'
+        },
+        {
+            text: '判决：诚实的心最打动人！',
+            penalty: '补偿方案：给对方一个深情的拥抱，计划下一次约会！'
+        }
+    ];
+    
+    const verdict = verdicts[Math.floor(Math.random() * verdicts.length)];
+    showVerdict(verdict);
+}
+
+function proposePeace() {
+    const verdicts = [
+        {
+            text: '和解判决：爱情没有对错，只有相互理解！',
+            penalty: '和解方案：一起做晚餐，然后好好拥抱一下！'
+        },
+        {
+            text: '和解判决：相爱的人之间没有过夜的矛盾！',
+            penalty: '和解方案：一起去散步，说说心里话！'
+        },
+        {
+            text: '和解判决：包容是爱情最美的样子！',
+            penalty: '和解方案：一起回忆美好的时光，然后互相道个晚安！'
+        }
+    ];
+    
+    const verdict = verdicts[Math.floor(Math.random() * verdicts.length)];
+    showVerdict(verdict);
+}
+
+function showVerdict(verdict) {
+    const verdictArea = document.getElementById('verdictArea');
+    const verdictText = document.getElementById('verdictText');
+    const penaltySuggestion = document.getElementById('penaltySuggestion');
+    
+    verdictText.textContent = verdict.text;
+    penaltySuggestion.textContent = verdict.penalty;
+    
+    verdictArea.style.display = 'block';
+    verdictArea.scrollIntoView({ behavior: 'smooth' });
 }
