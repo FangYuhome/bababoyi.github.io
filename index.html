@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给宝子的小窝</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 极简背景 -->
+    <div class="bg-wrapper">
+        <div class="minimal-bg"></div>
+        <div class="subtle-decoration"></div>
+    </div>
+
+    <!-- 顶部导航 -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="logo">小窝</div>
+                <ul class="nav-links">
+                    <li><a href="#home" class="nav-link active"><i class="fas fa-home"></i> 首页</a></li>
+                    <li><a href="#menu" class="nav-link"><i class="fas fa-utensils"></i> 小菜单</a></li>
+                    <li><a href="#stories" class="nav-link"><i class="fas fa-book"></i> 小故事</a></li>
+                    <li><a href="#about" class="nav-link"><i class="fas fa-heart"></i> 关于</a></li>
+                </ul>
+                <button class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 首页 -->
+        <section id="home" class="section active">
+            <div class="section-content">
+                <div class="welcome-text">
+                    <h1>小宝的秘密小窝</h1>
+                    <p>这是只属于我们的小窝✨</p>
+                </div>
+                <div class="feature-cards">
+                    <div class="feature-card" onclick="navigateToSection('menu')">
+                        <div class="card-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h3>小宝的专属投喂清单</h3>
+                        <p>今天想吃啥？我来安排～</p>
+                    </div>
+                    <div class="feature-card" onclick="navigateToSection('stories')">
+                        <div class="card-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h3>专属我们的小故事集</h3>
+                        <p>点击章节，解锁属于我们的小故事～</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 菜单模块 -->
+        <section id="menu" class="section">
+            <div class="section-content">
+                <div class="module-header">
+                    <h2>小宝的专属投喂清单 🍚</h2>
+                    <p>挑个想吃的，我马上安排！</p>
+                </div>
+                
+                <div class="menu-container">
+                <!-- 标签页 -->
+                <div class="menu-tabs">
+                    <button class="tab-btn active" data-tab="daily">家常菜区</button>
+                    <button class="tab-btn" data-tab="creative">创意菜区</button>
+                    <button class="tab-btn" data-tab="dessert">甜品饮品区</button>
+                    <button class="tab-btn" data-tab="wish">想吃还没学区</button>
+                </div>
+
+                    <!-- 菜品列表 -->
+                    <div class="menu-content">
+                        <div class="menu-tab-content active" id="daily">
+                            <!-- 家常菜品 -->
+                        </div>
+                        <div class="menu-tab-content" id="creative">
+                            <!-- 创意菜品 -->
+                        </div>
+                        <div class="menu-tab-content" id="dessert">
+                            <!-- 甜品饮品 -->
+                        </div>
+                        <div class="menu-tab-content" id="wish">
+                            <!-- 想吃还没学区 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 今日点餐清单 -->
+                <div class="order-summary" id="orderSummary">
+                    <h4>今日点餐清单</h4>
+                    <div class="order-list" id="orderList">
+                        <p class="empty-message">还没选想吃的？快挑一个！</p>
+                    </div>
+                </div>
+                
+                <!-- 可爱小鸡助手 -->
+                <div class="chicken-helper" id="chickenHelper">
+                    <div class="chicken-body">
+                        <div class="chicken-head">
+                            <div class="chicken-crest"></div>
+                            <div class="chicken-eyes">
+                                <div class="eye left">•</div>
+                                <div class="eye right">•</div>
+                            </div>
+                            <div class="chicken-beak">▷</div>
+                            <div class="chicken-wattle">🞂</div>
+                        </div>
+                        <div class="chicken-body-main">
+                            <div class="chicken-wing"></div>
+                            <div class="chicken-feet">
+                                <div class="foot left">🞈</div>
+                                <div class="foot right">🞈</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chicken-speech" id="chickenSpeech">
+                        咕咕咕～今天想吃什么呢？🌽
+                    </div>
+                    <button class="chicken-help-btn" onclick="chickenRecommend(event)">
+                        <i class="fas fa-magic"></i>
+                        让小鸡推荐
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 故事集模块 -->
+        <section id="stories" class="section">
+            <div class="section-content">
+                <div class="module-header">
+                    <h2>专属我们的小故事集</h2>
+                    <p>点击章节，解锁属于我们的小故事～</p>
+                </div>
+                
+                <div class="story-container">
+                    <!-- 章节列表 -->
+                    <div class="story-sidebar">
+                        <h3>目录</h3>
+                        <ul class="chapter-list" id="chapterList">
+                            <!-- 章节将动态生成 -->
+                        </ul>
+                    </div>
+
+                    <!-- 正文区域 -->
+                    <div class="story-content">
+                        <div class="story-header">
+                            <div class="story-controls">
+                                <button class="control-btn" onclick="adjustFontSize(-1)">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span class="font-size-info">字体</span>
+                                <button class="control-btn" onclick="adjustFontSize(1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button class="control-btn" onclick="toggleBackground()">
+                                    <i class="fas fa-adjust"></i>
+                                </button>
+                            </div>
+                            <div class="story-actions">
+                                <button class="action-btn" onclick="scrollToTop()">
+                                    <i class="fas fa-arrow-up"></i> 回到开头
+                                </button>
+                                <button class="action-btn" onclick="toggleBookmark()">
+                                    <i class="far fa-bookmark"></i> 收藏
+                                </button>
+                            </div>
+                        </div>
+                        <div class="story-text" id="storyText">
+                            <!-- 故事内容 -->
+                        </div>
+                        <!-- 翻页控件 -->
+                        <div class="story-pagination">
+                            <button class="page-nav-btn prev-chapter" onclick="loadPreviousChapter()" id="prevBtn">
+                                <i class="fas fa-chevron-left"></i>
+                                <span>上一章</span>
+                            </button>
+                            <div class="chapter-info" id="chapterInfo">
+                                <span id="chapterNumber">1</span> / <span id="totalChapters">10</span>
+                            </div>
+                            <button class="page-nav-btn next-chapter" onclick="loadNextChapter()" id="nextBtn">
+                                <span>下一章</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <!-- 可爱胖猫咪 -->
+                        <div class="fat-cat" id="fatCat">
+                            <div class="cat-body">
+                                <div class="cat-head">
+                                    <div class="cat-ears">
+                                        <div class="ear left"></div>
+                                        <div class="ear right"></div>
+                                    </div>
+                                    <div class="cat-face">
+                                        <div class="cat-eyes">
+                                            <div class="eye left">●</div>
+                                            <div class="eye right">●</div>
+                                        </div>
+                                        <div class="cat-nose">▲</div>
+                                        <div class="cat-mouth">ｗ</div>
+                                    </div>
+                                </div>
+                                <div class="cat-belly">
+                                    <div class="cat-stripes"></div>
+                                </div>
+                                <div class="cat-tail"></div>
+                            </div>
+                            <div class="cat-speech-bubble" id="catSpeech">
+                                好棒的故事呀～ 🐾
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 关于我们 -->
+        <section id="about" class="section">
+            <div class="section-content">
+                <div class="about-content">
+                    <h2>关于这个小窝</h2>
+                    <p>做饭给你吃，写故事给你看，永远爱你😘</p>
+                    <div class="decorative-elements">
+                        <div class="minimal-heart"></div>
+                        <div class="minimal-utensil"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部 -->
+    <footer class="footer">
+        <p>更新于 2025.12.17</p>
+        <p>做饭给你吃，写故事给你看，永远爱你😘</p>
+    </footer>
+
+    <!-- 批注输入框 -->
+    <div class="annotation-modal" id="annotationModal">
+        <div class="modal-content">
+            <h4>心动批注 🥰</h4>
+            <textarea placeholder="写下你的想法..." id="annotationInput"></textarea>
+            <div class="modal-actions">
+                <button class="cancel-btn" onclick="closeAnnotationModal()">取消</button>
+                <button class="confirm-btn" onclick="saveAnnotation()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
